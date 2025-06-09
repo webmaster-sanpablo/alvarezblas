@@ -1,0 +1,185 @@
+@font-face {
+    font-family: 'icomoon'; /* Elige un nombre para tu fuente */
+    src: url('../fonts/icomoon.ttf') format('truetype'); /* Ruta relativa al archivo .ttf */
+    font-weight: normal; /* Opcional: peso de la fuente */
+    font-style: normal; /* Opcional: estilo (normal, italic, etc.) */
+}
+
+@font-face {
+    font-family: 'oswald-light'; /* Elige un nombre para tu fuente */
+    src: url('../fonts/oswald-light.ttf') format('truetype'); /* Ruta relativa al archivo .ttf */
+    font-weight: normal; /* Opcional: peso de la fuente */
+    font-style: normal; /* Opcional: estilo (normal, italic, etc.) */
+}
+
+@font-face {
+    font-family: 'oswald'; /* Elige un nombre para tu fuente */
+    src: url('../fonts/oswald.ttf') format('truetype'); /* Ruta relativa al archivo .ttf */
+    font-weight: normal; /* Opcional: peso de la fuente */
+    font-style: normal; /* Opcional: estilo (normal, italic, etc.) */
+}
+
+@font-face {
+    font-family: 'titillium'; /* Elige un nombre para tu fuente */
+    src: url('../fonts/titillium.ttf') format('truetype'); /* Ruta relativa al archivo .ttf */
+    font-weight: normal; /* Opcional: peso de la fuente */
+    font-style: normal; /* Opcional: estilo (normal, italic, etc.) */
+}
+
+body {
+    overflow-x: hidden;
+    background-color: #222222;
+}
+
+.icomoon {
+    font-family: 'icomoon';
+}
+
+.oswald-light {
+    font-family: 'oswald-light';
+}
+
+.oswald {
+    font-family: 'oswald';
+}
+
+.titillium {
+    font-family: 'titillium';
+}
+
+.weight-300 {
+    font-weight: 300;
+}
+
+.weight-400 {
+    font-weight: 400;
+}
+
+.weight-600 {
+    font-weight: 600;
+}
+
+.weight-700 {
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 56px;
+    line-height: 100%;
+    letter-spacing: 0;
+    text-align: center;
+}
+
+.bg-image-portada {
+    background-image: url('../assets/portada.jpg'); /* Cambia la ruta */
+    background-size: cover; /* Cubre todo el espacio recortando lados si es necesario */
+    background-position: center bottom; /* Fuerza que se vea la parte inferior */
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Opcional: efecto parallax */
+    min-height: 100vh; /* Altura mínima = 100% del viewport */
+    width: 100%; /* Ancho responsive */
+}
+
+.subtitulo {
+    font-size: 24px;
+    line-height: 100%;
+    letter-spacing: 0;
+}
+
+.subtitulo-2 {
+    line-height: 32px;
+}
+
+.subtitulo-3 {
+    font-size: 40px;
+}
+
+.gradient-container-portada {
+    background: linear-gradient(to top, #222222, rgba(34, 34, 34, 0));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.text-container {
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Estilo para el botón circular */
+.btn-circle {
+    width: 76px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: transform 0.3s;
+    justify-self: center;
+    background-color: rgba(255, 255, 255, 34%);
+    cursor: pointer;
+}
+
+.btn-circle:hover {
+    background-color: rgba(255, 255, 255, 34%);
+}
+
+.btn-circle:active, :not(.btn-check)+.btn:active {
+    transform: translateY(5px); /* Efecto al hover */
+    background-color: rgba(255, 255, 255, 68%);
+}
+
+.btn-circle > i {
+    font-size: 20px;
+}
+
+#galeria {
+    max-width: 1220px;
+}
+
+.form-control:focus {
+    border-color: white !important;
+    box-shadow: none !important;
+}
+
+.plomo {
+    color: #5e5e5e;
+}
+
+.bg-image-pie {
+    background-image: url('../assets/pie.jpg'); /* Cambia la ruta */
+    background-size: cover; /* Cubre todo el espacio recortando lados si es necesario */
+    background-position: center bottom; /* Fuerza que se vea la parte inferior */
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Opcional: efecto parallax */
+    min-height: 100vh; /* Altura mínima = 100% del viewport */
+    width: 100%; /* Ancho responsive */
+}
+
+.gradient-container-pie {
+    background: linear-gradient(to bottom, #222222, rgba(34, 34, 34, 0));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Ajustes para responsividad en móviles */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 36px !important;  /* Reduce el tamaño en móviles */
+    }
+
+    .subtitulo {
+        font-size: 18px !important;
+    }
+
+    .row div {
+        margin-bottom: 1rem;
+    }
+}
