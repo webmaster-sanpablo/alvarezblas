@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <!-- Mismo head que en index.html -->
+        <link rel="stylesheet" href="css/galeria.css">
+    </head>
+    <body>
+        <div class="container my-5" id="detalle-foto">
+            <!-- Contenido cargado por JS -->
+        </div>
+
+        <div class="container my-5">
+            <h3 class="oswald weight-300 text-white">Otras obras que te pueden gustar</h3>
+            <div class="row" id="recomendaciones">
+                <!-- Fotos aleatorias cargadas por JS -->
+            </div>
+        </div>
+
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const fotoId = urlParams.get('id');
+
+            // Cargar foto detallada
+            fetch(`api_fotos.php?id=${fotoId}`)
+                .then(response => response.json())
+                .then(foto => {
+                    document.getElementById('detalle-foto').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-8">
+                                <img src="img/${foto.ruta}" class="img-fluid rounded-4">
+                            </div>
+                            <div class="col-md-4 text-white">
+                                <h2 class="oswald weight-400">${foto.nombre}</h2>
+                                <p class="titillium weight-300 mt-4">${foto.descripcion}</p>
+                                <p class="oswald weight-600 mt-4">Estado: 
+                                    <span class="${foto.estado === 'disponible' ? 'text-success' : 'text-danger'}">
+                                        ${foto.estado.toUpperCase()}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            // Cargar recomendaciones aleatorias
+            fetch('api_fotos.php?aleatorias=1')
+                .then(response => response.json())
+                .then(fotos => {
+                    fotos.forEach(foto => {
+                        document.getElementById('recomendaciones').innerHTML += `
+                            <div class="col-6 col-md-4">
+                                <div class="card rounded-4 border-0 bg-transparent">
+                                    <a href="detalle.html?id=${foto.id}">
+                                        <img class="img-fluid rounded-4 mt-3" src="img/${foto.ruta}">
+                                    </a>
+                                    <p class="oswald weight-400 subtitulo text-white my-3">${foto.nombre}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+        </script>
+    </body>
+</html>

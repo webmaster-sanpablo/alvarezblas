@@ -169,6 +169,28 @@ h1 {
     padding: 20px;
 }
 
+#paginacion a {
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+#paginacion a:hover {
+    color: white !important;
+}
+
+/* Mensaje de "no encontrado" */
+#resultados .col-12.text-center {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#resultados .fa-image {
+    opacity: 0.5;
+}
+
 /* Ajustes para responsividad en móviles */
 @media (max-width: 768px) {
     h1 {
