@@ -48,7 +48,13 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
 
 // Obtener fotos aleatorias (para la sección "Recomendaciones")
 elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['aleatorias'])) {
-    $sql = "SELECT * FROM fotos WHERE estado = 'disponible' ORDER BY RAND() LIMIT 3";
+    $limit = min(10, intval($_GET['aleatorias'])); //Acepta hasta 10 imágenes
+    $excludeId = isset($_GET['exclude']) ? intval($_GET['exclude']) : 0;
+    $sql = "SELECT * FROM fotos WHERE estado = 'disponible'";
+    if ($excludeId > 0) {
+        $sql .= " AND id != $excludeId";
+    }
+    $sql .= " ORDER BY RAND() LIMIT $limit";
     $result = $conn->query($sql);
     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
 }

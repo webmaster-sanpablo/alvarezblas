@@ -110,7 +110,7 @@
                 </div>
             </div>
         </div>
-        <div class="container-fluid bg-image-pie p-0">
+        <footer class="container-fluid bg-image-pie p-0">
             <div class="gradient-container-pie d-flex flex-column min-vh-100">
                 <div class="container p-0" style="max-width: 1220px;">
                     <div class="row">
@@ -126,7 +126,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </footer>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -189,7 +189,7 @@
                 let html = '';
 
                 for (let i = 1; i <= totalPaginas; i++) {
-                    html += `<a href="#" onclick="buscarFotos(${i})" class="${i === paginaActual ? 'text-white fw-bold' : 'plomo'} mx-2">${i}</a>`;
+                    html += `<a onclick="buscarFotos(${i})" class="${i === paginaActual ? 'text-white fw-bold' : 'plomo'} mx-2" style="cursor: pointer;">${i}</a>`;
                 }
 
                 paginacionDiv.innerHTML = `<p class="col-12 titillium weight-400 subtitulo text-center">${html}</p>`;
