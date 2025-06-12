@@ -1,7 +1,7 @@
 <?php
     $host = 'localhost';
-    $user = 'backend_developer';
-    $password = 'UMS$H]2&94HV';
+    $user = 'root';
+    $password = '';
     $database = 'galeria_fotos';
 
     $conn = new mysqli($host, $user, $password, $database);

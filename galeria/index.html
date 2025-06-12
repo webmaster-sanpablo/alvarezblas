@@ -18,10 +18,10 @@
             <div class="gradient-container-portada d-flex flex-column min-vh-100">
                 <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1">
                     <div class="text-container text-center">
-                        <h1 class="oswald weight-400 text-white mt-4 mt-ms-0 pt-4 pt-md-0">Galería Paisajes Intuitivos</h1>
-                        <p class="titillium weight-400 subtitulo text-white mt-1 mt-md-3">José Álvarez Blas</p>
-                        <p class="titillium weight-700 subtitulo text-white mt-4 pt-md-5 col-8 col-md-12 mx-auto">Exposición en Auditorio del Parque de la Amistad</p>
-                        <p class="titillium weight-400 subtitulo subtitulo-2 text-white">Av. Caminos del Inca 22, Santiago de Surco</p>
+                        <h1 class="oswald weight-400 text-white mt-4 mt-ms-0 pt-4 pt-md-0">Paisajes Intuitivos</h1>
+                        <p class="titillium weight-400 subtitulo text-white mt-1 mt-md-3">Una vuelta al mundo en las fotografías de José Álvarez</p>
+                        <p class="titillium weight-700 subtitulo text-white mt-4 pt-md-5 col-8 col-md-12 mx-auto">Exposición en Galería de Arte del Parque de la Amistad</p>
+                        <p class="titillium weight-400 subtitulo subtitulo-2 text-white">Av. Caminos del Inca Cdra. 22, Santiago de Surco</p>
                         <a class="btn rounded-circle btn-circle mt-4 mt-md-5" href="#galeria"><i class="fas fa-arrow-down text-white"></i></a>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                                     <div class="input-group my-3">
                                         <span class="input-group-text bg-transparent rounded-start-pill border-end-0 pe-0"><i class="fas fa-search text-white"></i></span>
                                         <input type="text" class="form-control bg-transparent border-start-0 ps-2 rounded-end-pill titillium text-white" id="buscador-input" placeholder="Ej: Atardecer, Montaña...">
-                                        <button type="button" class="oswald weight-600 btn btn-light rounded-pill ms-4 px-5" onclick="buscarFotos()">Buscar</a>
+                                        <button type="button" class="oswald weight-600 btn btn-light rounded-pill ms-4 px-5" onclick="buscarFotos()">Buscar</button>
                                     </div>
                                 </div>
                             </div>
@@ -110,15 +110,15 @@
                 </div>
             </div>
         </div>
-        <footer class="container-fluid bg-image-pie p-0">
+        <footer class="d-none container-fluid bg-image-pie p-0">
             <div class="gradient-container-pie d-flex flex-column min-vh-100">
                 <div class="container p-0" style="max-width: 1220px;">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="d-flex flex-column justify-content-center flex-grow-1">
                                 <div class="text-container text-start">
-                                    <h2 class="oswald weight-700 text-white text-start" style="font-size: 32px; line-height: 40px;">EL MUNDO COMO NUNCA LO HABÍAS MIRADO</h1>
-                                    <p class="titillium weight-300 subtitulo text-white mt-5" style="line-height: 32px;">No se trata de ver. Se trata de sentir. Cada fotografía es una pausa en el ruido, una caricia visual que te recuerda lo inmenso, lo simple, lo esencial.</p>
+                                    <h2 class="oswald weight-700 text-white text-start" style="font-size: 32px; line-height: 40px;">Explora esta colección</h2>
+                                    <p class="titillium weight-300 subtitulo text-white mt-5" style="line-height: 32px;">Cada pieza refleja una visión profunda de la naturaleza.</p>
                                 </div>
                             </div>
                             <img src="../static/img/logo-header.png" class="mt-5" width="160px">
@@ -130,70 +130,68 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Cargar fotos al inicio (primera página)
-                buscarFotos();
+                buscarFotos(); // Cargar página 1 al iniciar
             });
-
+        
             function buscarFotos(pagina = 1) {
                 const buscadorInput = document.getElementById('buscador-input');
                 const resultadosDiv = document.getElementById('resultados');
                 const paginacionDiv = document.getElementById('paginacion');
-
-                fetch(`api_fotos.php?buscar=${encodeURIComponent(buscadorInput.value)}&pagina=${pagina}`).then(response => response.json()).then(data => {
-                    // Limpiar resultados anteriores
-                    resultadosDiv.innerHTML = '';
-
-                    //Mostrar mensaje si no hay resultados
-                    if (!data.encontrado) {
+        
+                fetch(`api_fotos.php?buscar=${encodeURIComponent(buscadorInput.value)}&pagina=${pagina}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultadosDiv.innerHTML = '';
+                        paginacionDiv.innerHTML = '';
+        
+                        if (!data.success || data.data.length === 0) {
+                            resultadosDiv.innerHTML = `
+                                <div class="col-12 text-center py-5">
+                                    <i class="fas fa-image fa-3x text-white mb-3"></i>
+                                    <p class="oswald weight-400 subtitulo text-white">No se encontraron coincidencias</p>
+                                </div>
+                            `;
+                            return;
+                        }
+        
+                        data.data.forEach(foto => {
+                            resultadosDiv.innerHTML += `
+                                <div class="col-6 col-md-4">
+                                    <div class="card rounded-4 border-0 bg-transparent">
+                                        <a href="detalle.html?id=${foto.id}" target="_blank">
+                                            <img class="img-fluid rounded-4 mt-3" src="img/${foto.url_completa}" alt="${foto.nombre}">
+                                        </a>
+                                        <p class="oswald weight-400 subtitulo text-white my-3">${foto.nombre}</p>
+                                        ${foto.estado === 'vendido' ? '<span class="badge bg-danger">Vendido</span>' : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+        
+                        actualizarPaginacion(data.paginacion.total, pagina);
+                    })
+                    .catch(error => {
+                        console.error("Error al buscar fotos:", error);
                         resultadosDiv.innerHTML = `
                             <div class="col-12 text-center py-5">
-                                <i class="fas fa-image fa-3x text-white mb-3"></i>
-                                <p class="oswald weight-400 subtitulo text-white">No se encontraron coincidencias</p>
-                            </div>
-                        `;
-                        paginacionDiv.innerHTML = ''; //Ocultar paginación
-                        return;
-                    }
-
-                    // Mostrar fotos encontradas
-                    data.fotos.forEach(foto => {
-                        resultadosDiv.innerHTML += `
-                            <div class="col-6 col-md-4">
-                                <div class="card rounded-4 border-0 bg-transparent">
-                                    <a href="detalle.html?id=${foto.id}" target="_blank">
-                                        <img class="img-fluid rounded-4 mt-3" src="img/${foto.ruta}" alt="${foto.nombre}">
-                                    </a>
-                                    <p class="oswald weight-400 subtitulo text-white my-3">${foto.nombre}</p>
-                                    ${foto.estado === 'vendido' ? '<span class="badge bg-danger">Vendido</span>' : ''}
-                                </div>
+                                <p class="oswald weight-400 subtitulo text-white">Error al cargar los resultados</p>
                             </div>
                         `;
                     });
-
-                    // Actualizar paginación
-                    actualizarPaginacion(data.totalFotos, pagina);
-                })
-                .catch(error => {
-                    console.error("Error al buscar fotos:", error);
-                    resultadosDiv.innerHTML = `
-                        <div class="col-12 text-center py-5">
-                            <p class="oswald weight-400 subtitulo text-white">Error al cargar los resultados</p>
-                        </div>
-                    `;
-                });
             }
-
+        
             function actualizarPaginacion(totalFotos, paginaActual) {
                 const paginacionDiv = document.getElementById('paginacion');
                 const totalPaginas = Math.ceil(totalFotos / 6);
                 let html = '';
-
+        
                 for (let i = 1; i <= totalPaginas; i++) {
                     html += `<a onclick="buscarFotos(${i})" class="${i === paginaActual ? 'text-white fw-bold' : 'plomo'} mx-2" style="cursor: pointer;">${i}</a>`;
                 }
-
+        
                 paginacionDiv.innerHTML = `<p class="col-12 titillium weight-400 subtitulo text-center">${html}</p>`;
             }
         </script>
+
     </body>
 </html>

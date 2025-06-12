@@ -32,7 +32,7 @@
     </head>
     <body>
         <div class="container" style="max-width: 1220px">
-            <h1 class="oswald weight-400 mt-5 text-white text-start">Galería Álvarez Blas</h1>
+            <h1 class="oswald weight-400 mt-5 text-white text-start">Galería</h1>
             <div class="container my-5 p-0" id="detalle-foto">
                 <!-- Contenido cargado por JS -->
             </div>
@@ -45,8 +45,12 @@
                     </div>
                 </div>
             </div>
+
+            <div class="container my-5 p-0">
+                <a class="oswald weight-300 text-white mb-4" href="#">Ver toda la galería del artista</a>
+            </div>
         </div>
-        <footer class="container-fluid bg-image-pie p-0">
+        <footer class="d-none container-fluid bg-image-pie p-0">
             <div class="gradient-container-pie d-flex flex-column min-vh-100">
                 <div class="container p-0" style="max-width: 1220px;">
                     <div class="row">
@@ -88,7 +92,7 @@
                                 <p class="oswald weight-700 mt-5 precio ${foto.estado === 'disponible' ? '' : 'd-none'}">S/ ${foto.precio}</p>
                                 <p class="btn btn-light text-danger oswald weight-400 mt-4 rounded-4 py-3 px-4 subtitulo ${foto.estado === 'disponible' ? '' : 'd-none'}">Adquiere aquí</p>
                                 <div class="row mt-4 align-items-center ${foto.estado === 'vendido' ? 'pt-5' : 'd-none'}">
-                                    <p class="col-auto btn btn-light text-danger oswald weight-400 rounded-4 disabled py-3 px-4 subtitulo">Vendido</p>
+                                    <p class="col-auto btn btn-light text-danger oswald weight-400 rounded-4 disabled py-3 px-4 subtitulo">No disponible</p>
                                     <p class="col-auto oswald weight-300 text-white subtitulo">Explora más opciones</p>
                                 </div>
                             </div>
