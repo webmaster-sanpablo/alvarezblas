@@ -76,14 +76,25 @@
             const urlParams = new URLSearchParams(window.location.search);
             const fotoId = urlParams.get('id');
 
-            // Cargar foto detallada
-            fetch(`api_fotos.php?id=${fotoId}`)
+            // Cargar detalle de la foto por ID
+            fetch(`api_fotos.php?&id=${fotoId}`)
                 .then(response => response.json())
-                .then(foto => {
+                .then(data => {
+                    if (!data.success || !data.data || data.data.length === 0) {
+                        document.getElementById('detalle-foto').innerHTML = `
+                            <div class="text-center text-white py-5">
+                                <i class="fas fa-image fa-3x mb-3"></i>
+                                <p class="titillium weight-300">Foto no encontrada</p>
+                            </div>`;
+                        return;
+                    }
+
+                    const foto = data.data[0];
+
                     document.getElementById('detalle-foto').innerHTML = `
                         <div class="row">
                             <div class="col-md-6">
-                                <img src="img/${foto.ruta}" class="img-fluid rounded-4">
+                                <img src="img/${foto.url_completa}" class="img-fluid rounded-4">
                             </div>
                             <div class="col-md-6 text-white">
                                 <h2 class="oswald weight-700">${foto.nombre}</h2>
@@ -98,20 +109,21 @@
                             </div>
                         </div>
                     `;
+                })
+                .catch(err => {
+                    console.error('Error al cargar detalle:', err);
+                    document.getElementById('detalle-foto').innerHTML = `
+                        <div class="text-center text-white py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                            <p class="titillium weight-300">No se pudo cargar la foto</p>
+                        </div>`;
                 });
 
-            // Cargar recomendaciones aleatorias (máximo 10), excluyendo la imagen actual
-            fetch(`api_fotos.php?aleatorias=10&exclude=${fotoId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta de la API');
-                    }
-                    return response.json();
-                })
-                .then(fotos => {
-                    // Verificar que hay fotos disponibles
-                    if (!fotos || fotos.length === 0) {
-                        console.log('No hay fotos recomendadas disponibles');
+            // Recomendaciones (aleatorias excluyendo la actual)
+            fetch(`api_fotos.php?aleatorias=6&exclude=${fotoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success || !data.data || data.data.length === 0) {
                         document.getElementById('recomendaciones').innerHTML = `
                             <div class="col-12 text-center text-white py-4">
                                 <i class="fas fa-image fa-2x mb-3"></i>
@@ -122,47 +134,34 @@
                     }
 
                     let recomendacionesHTML = '';
-                    
-                    fotos.forEach(foto => {
+                    data.data.forEach(foto => {
                         recomendacionesHTML += `
                             <div>
                                 <div class="card rounded-4 border-0 bg-transparent h-100">
                                     <a href="detalle.html?id=${foto.id}">
                                         <div class="card-img-container rounded-4">
-                                            <img class="img-fluid" src="img/${foto.ruta}" alt="${foto.nombre}" loading="lazy">
+                                            <img class="img-fluid" src="img/${foto.url_completa}" alt="${foto.nombre}" loading="lazy">
                                         </div>
                                     </a>
                                 </div>
                             </div>
                         `;
                     });
-                    
-                    const recomendacionesContainer = document.getElementById('recomendaciones');
-                    recomendacionesContainer.innerHTML = recomendacionesHTML;
-                    
-                    // Inicializar el slider solo si hay elementos
+
+                    document.getElementById('recomendaciones').innerHTML = recomendacionesHTML;
+
                     $('#recomendaciones').slick({
                         dots: false,
                         arrows: true,
-                        infinite: fotos.length > 3, // Solo infinito si hay más de 3 imágenes
+                        infinite: data.data.length > 3,
                         speed: 300,
-                        slidesToShow: Math.min(3, fotos.length),
+                        slidesToShow: Math.min(3, data.data.length),
                         slidesToScroll: 1,
                         autoplay: true,
                         autoplaySpeed: 5000,
                         responsive: [
-                            {
-                                breakpoint: 992,
-                                settings: {
-                                    slidesToShow: Math.min(2, fotos.length),
-                                }
-                            },
-                            {
-                                breakpoint: 576,
-                                settings: {
-                                    slidesToShow: 1,
-                                }
-                            }
+                            { breakpoint: 992, settings: { slidesToShow: Math.min(2, data.data.length) }},
+                            { breakpoint: 576, settings: { slidesToShow: 1 }}
                         ]
                     });
                 })
@@ -172,9 +171,9 @@
                         <div class="col-12 text-center text-white py-4">
                             <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
                             <p class="titillium weight-300">No se pudieron cargar las recomendaciones</p>
-                        </div>
-                    `;
+                        </div>`;
                 });
         </script>
+
     </body>
 </html>

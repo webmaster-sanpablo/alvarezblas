@@ -1,74 +1,85 @@
 <?php
-// Mostrar errores en entorno de desarrollo (quítalo en producción)
+header('Content-Type: application/json');
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Cabecera para indicar respuesta JSON
-header('Content-Type: application/json');
-
 // Datos de conexión
 $host = 'localhost';
+// $user = 'backend_developer';
+// $pass = '@Casita123!';
 $user = 'root';
 $pass = '';
 $db   = 'galeria_fotos';
 
 try {
     $conn = new mysqli($host, $user, $pass, $db);
-
     if ($conn->connect_error) {
         throw new Exception("Conexión fallida: " . $conn->connect_error);
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['buscar'])) {
-        $busqueda = trim($_GET['buscar']);
-        $pagina = max(1, intval($_GET['pagina'] ?? 1));
-        $porPagina = 6;
-        $offset = ($pagina - 1) * $porPagina;
+    $id = isset($_GET['id']) ? intval($_GET['id']) : null;
+    $buscar = trim($_GET['buscar'] ?? '');
+    $pagina = max(1, intval($_GET['pagina'] ?? 1));
+    $porPagina = 6;
+    $offset = ($pagina - 1) * $porPagina;
+    $aleatorias = isset($_GET['exclude']) || isset($_GET['aleatorias']);
 
-        // Base de la consulta
-        $sql = "SELECT id, ruta, nombre, descripcion, precio, estado FROM fotos";
-        $params = [];
-        $types = "";
-
-        if (!empty($busqueda)) {
-            $sql .= " WHERE (nombre LIKE ? OR descripcion LIKE ?)";
-            $searchTerm = "%$busqueda%";
-            $params = [$searchTerm, $searchTerm];
-            $types = "ss";
-        }
-
-        $sql .= " LIMIT ?, ?";
-        $params[] = $offset;
-        $params[] = $porPagina;
-        $types .= "ii";
-
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception("Error preparando consulta: " . $conn->error);
-        }
-
-        $stmt->bind_param($types, ...$params);
+    // --- 1. Consulta por ID específico ---
+    if ($id) {
+        $stmt = $conn->prepare("SELECT id, ruta, nombre, descripcion, precio, estado FROM fotos WHERE id = ?");
+        $stmt->bind_param("i", $id);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $fotos = $result->fetch_all(MYSQLI_ASSOC);
+        $res = $stmt->get_result();
+        $foto = $res->fetch_assoc();
 
-        // Contar total
-        $countSql = "SELECT COUNT(*) FROM fotos";
-        if (!empty($busqueda)) {
-            $countSql .= " WHERE (nombre LIKE ? OR descripcion LIKE ?)";
-            $stmtCount = $conn->prepare($countSql);
-            $stmtCount->bind_param("ss", $searchTerm, $searchTerm);
+        if ($foto) {
+            foreach ($foto as $key => $value) {
+                if (is_string($value)) {
+                    $foto[$key] = mb_convert_encoding($value, 'UTF-8', 'auto');
+                }
+            }
+            $foto['url_completa'] = $foto['ruta'];
+
+            $json = json_encode(['success' => true, 'data' => [$foto]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            if ($json === false) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Error al codificar JSON',
+                    'json_error' => json_last_error_msg()
+                ]);
+            } else {
+                echo $json;
+            }
         } else {
-            $stmtCount = $conn->prepare($countSql);
+            echo json_encode(['success' => false, 'error' => 'Foto no encontrada']);
+        }
+        exit;
+    }
+
+
+    // --- 2. Recomendaciones aleatorias excluyendo una ID ---
+    if ($aleatorias) {
+        $limit = intval($_GET['aleatorias'] ?? 10);
+        $exclude = intval($_GET['exclude'] ?? 0);
+
+        $sql = "SELECT id, ruta, nombre, descripcion, precio, estado FROM fotos";
+        if ($exclude > 0) {
+            $sql .= " WHERE id != ?";
+        }
+        $sql .= " ORDER BY RAND() LIMIT ?";
+
+        $stmt = $conn->prepare($exclude > 0 ? "$sql" : str_replace(" WHERE id != ?", "", $sql));
+        if ($exclude > 0) {
+            $stmt->bind_param("ii", $exclude, $limit);
+        } else {
+            $stmt->bind_param("i", $limit);
         }
 
-        $stmtCount->execute();
-        $stmtCount->bind_result($total);
-        $stmtCount->fetch();
-        $stmtCount->close();
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $fotos = $res->fetch_all(MYSQLI_ASSOC);
 
-        // Construir URLs completas y forzar UTF-8 para evitar errores en json_encode
         foreach ($fotos as &$foto) {
             foreach ($foto as $key => $value) {
                 if (is_string($value)) {
@@ -78,34 +89,66 @@ try {
             $foto['url_completa'] = $foto['ruta'];
         }
 
-        // Codificar y mostrar JSON
-        $json = json_encode([
-            'success' => true,
-            'data' => $fotos,
-            'paginacion' => [
-                'total' => $total,
-                'pagina' => $pagina,
-                'por_pagina' => $porPagina
-            ]
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-        if ($json === false) {
-            echo json_encode([
-                'success' => false,
-                'error' => 'Fallo en json_encode',
-                'json_error' => json_last_error_msg()
-            ]);
-        } else {
-            echo $json;
-        }
-
-    } else {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Parámetros inválidos']);
+        echo json_encode(['success' => true, 'data' => $fotos], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
     }
 
-    $conn->close();
+    // --- 3. Búsqueda general con paginación ---
+    $params = [];
+    $types = "";
+    $sql = "SELECT id, ruta, nombre, descripcion, precio, estado FROM fotos";
 
+    if (!empty($buscar)) {
+        $sql .= " WHERE nombre LIKE ? OR descripcion LIKE ?";
+        $search = "%$buscar%";
+        $params = [$search, $search];
+        $types = "ss";
+    }
+
+    $sql .= " LIMIT ?, ?";
+    $params[] = $offset;
+    $params[] = $porPagina;
+    $types .= "ii";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $fotos = $res->fetch_all(MYSQLI_ASSOC);
+
+    foreach ($fotos as &$foto) {
+        foreach ($foto as $key => $value) {
+            if (is_string($value)) {
+                $foto[$key] = mb_convert_encoding($value, 'UTF-8', 'auto');
+            }
+        }
+        $foto['url_completa'] = $foto['ruta'];
+    }
+
+    // Conteo total
+    $countSql = "SELECT COUNT(*) FROM fotos";
+    if (!empty($buscar)) {
+        $countSql .= " WHERE nombre LIKE ? OR descripcion LIKE ?";
+        $stmtCount = $conn->prepare($countSql);
+        $stmtCount->bind_param("ss", $search, $search);
+    } else {
+        $stmtCount = $conn->prepare($countSql);
+    }
+
+    $stmtCount->execute();
+    $stmtCount->bind_result($total);
+    $stmtCount->fetch();
+    $stmtCount->close();
+
+    echo json_encode([
+        'success' => true,
+        'data' => $fotos,
+        'paginacion' => [
+            'total' => $total,
+            'pagina' => $pagina,
+            'por_pagina' => $porPagina
+        ]
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
